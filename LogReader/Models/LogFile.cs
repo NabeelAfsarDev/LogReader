@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace LogReader.Models
 {
@@ -17,9 +17,7 @@ namespace LogReader.Models
         private readonly string _requestType = "GET";
         private readonly string _portNumber = "80";
 
-
-        private List<string> _ipAddressList;
-        public List<IPAddress> CollectGetRequestData(List<string> logLines)
+        public List<IPAddress> CollectGetRequestData(string[] logLines)
         {
             Regex r = new Regex(_ipPattern);
             var ipAddresses = new List<IPAddress>();
@@ -31,6 +29,7 @@ namespace LogReader.Models
                 if(line.Contains(_requestType) && line.Contains(_portNumber))
                 {
                     Match match = r.Match(line);
+                    ip = match.Value;
                     if (!string.IsNullOrEmpty(match.Value))
                     {
                         //see if ip address exists; add ip or increment count
@@ -53,10 +52,31 @@ namespace LogReader.Models
 
             return ipAddresses;   
         }
-
-        public void GenerateCSVReport()
+        public List<IPAddress> SortIPAddressList(List<IPAddress> ipAddresses)
         {
+            if(ipAddresses.Count > 0)
+            {
+                return ipAddresses.OrderByDescending(i => i.IpGetRequestCount)
+                .ThenByDescending(i => new Version(i.IP.ToString()))
+                .ToList();
+            }
+            else
+            {
+                return null;
+            }
 
+        }
+        public void GenerateCSVReport(List<IPAddress> ipAddresses)
+        {
+            var csv = new StringBuilder();
+            foreach (IPAddress ip in ipAddresses)
+            {
+                var newLine = string.Format("{0}, \"{1}\"", ip.IpGetRequestCount, ip.IP);
+                csv.AppendLine(newLine);
+            }
+            
+            string path = @"C:\report.csv";
+            File.WriteAllText(path, csv.ToString());
         }
     }
 }

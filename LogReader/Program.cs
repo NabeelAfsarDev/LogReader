@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
-using System.Text.RegularExpressions;
+using LogReader.Models;
 
 namespace LogReader
 {
@@ -14,20 +14,27 @@ namespace LogReader
         {
 
             string path = @"Data\\access.log";
-            var logFile = File.ReadAllLines(path);
-            string pattern = @"\b(?:(?:2(?:[0-4][0-9]|5[0-5])|[0-1]?[0-9]?[0-9])\.){3}(?:(?:2([0-4][0-9]|5[0-5])|[0-1]?[0-9]?[0-9]))";
-            Regex r = new Regex(pattern);
-            string input = File.ReadAllText(path);
-            MatchCollection matches = r.Matches(input);
-            foreach (Match match in matches)
-                Console.WriteLine(match.Value);
+            try
+            {
+                var accessLogLines = File.ReadAllLines(path);
 
-            //List<string> logFileList = new List<string>(logFile);
-            //foreach(var line in logFileList)
-            //{
-            //    Console.WriteLine(line);
-            //}
+                //use LogFile object to extract data, sort it, and generate report
+                LogFile logFile = new LogFile();
+                var ipAddresses = logFile.CollectGetRequestData(accessLogLines);
+
+                ipAddresses = logFile.SortIPAddressList(ipAddresses);
+                logFile.GenerateCSVReport(ipAddresses);
+            }
+            catch (Exception e)
+            {
+                //show the error to user
+                Console.WriteLine("Sorry ran in to an exception :(, but here's more info:");
+                string errorLogLine = string.Format("{0} {1} {2}", e.Message, e.InnerException, e.StackTrace);
+                Console.WriteLine(errorLogLine);
+            }
+            Console.WriteLine("All done. Please press any key to exit the program.");
             Console.ReadKey();
+
         }
     }
 }
