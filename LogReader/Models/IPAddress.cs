@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace LogReader.Models
+﻿namespace LogReader.Models
 {
     public class IPAddress
     {
@@ -12,3 +6,4 @@ namespace LogReader.Models
         public int IpGetRequestCount { get; set; }
     }
 }
+
