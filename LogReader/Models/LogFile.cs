@@ -30,7 +30,7 @@ namespace LogReader.Models
                 {
                     Match match = r.Match(line);
                     ip = match.Value;
-                    if (!string.IsNullOrEmpty(match.Value))
+                    if (!string.IsNullOrEmpty(ip) && !ip.Contains("207.114"))
                     {
                         //see if ip address exists; add ip or increment count
                         if (ipAddresses.Count > 0 && ipAddresses.Where(i => i.IP == ip).Any())
